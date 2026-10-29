@@ -1,0 +1,47 @@
+# Essay Stats MCP
+
+> An MCP server with offline writing metrics for essays. It counts words and pages, scores readability, flags style problems and checks word limits. No account, no API key, no network.
+
+Package: essay-stats-mcp (npm). Registry name: io.github.AnonymousOnyx22/essay-stats-mcp. Runs over stdio. Needs Node.js 20 or newer.
+
+## Install
+
+Add this to the MCP config of Claude Desktop, Claude Code, Cursor, VS Code or Windsurf:
+
+```json
+{
+  "mcpServers": {
+    "essay-stats": {
+      "command": "npx",
+      "args": ["-y", "essay-stats-mcp"]
+    }
+  }
+}
+```
+
+VS Code uses a `servers` key instead of `mcpServers`.
+
+## Tools
+
+All tools are read only and work on text passed in the call.
+
+- count_text: words, characters, sentences, paragraphs, reading time and estimated pages. Inputs: text, optional font (times new roman, arial, calibri, georgia, courier new, verdana), font_size (default 12) and spacing (single, 1.5, double; default double).
+- readability_scores: Flesch Kincaid grade, Flesch reading ease, Gunning Fog and SMOG. Input: text. SMOG is marked less reliable under 30 sentences.
+- style_flags: passive voice, repeated sentence openers, filler words and long sentences. Inputs: text, optional max_sentence_words (default 30).
+- check_word_limit: compares text with a limit. Inputs: text, limit, optional minimum, tolerance_percent, exclude_references and exclude_quotes. Returns a status of under_minimum, within_limit, within_tolerance or over_limit.
+
+## Example prompts
+
+- "Count the words in this essay and estimate the pages in Times New Roman 12 double spaced."
+- "Give me the Flesch Kincaid, Gunning Fog and SMOG scores for this paper."
+- "Flag passive voice and filler words in my draft."
+- "Is this under 2000 words if I leave out the works cited and quotes?"
+
+## Privacy
+
+Everything runs locally. The server makes no network requests and stores nothing. No keys or passwords are needed.
+
+## Links
+
+- Source: https://github.com/AnonymousOnyx22/essay-stats-mcp
+- License: MIT

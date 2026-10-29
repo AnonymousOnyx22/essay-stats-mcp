@@ -1,0 +1,265 @@
+import { z } from "zod";
+import type { ToolDef } from "./core/tools.js";
+import {
+  counts,
+  findFiller,
+  findPassive,
+  findRepeatedOpeners,
+  pageEstimate,
+  round,
+  splitParagraphs,
+  splitSentences,
+  stripQuotes,
+  stripReferences,
+  wordCount,
+} from "./text.js";
+
+const textInput = z.string().min(1, "text is empty. Paste the essay text to analyse.");
+
+function requireText(text: string): void {
+  if (!/[A-Za-z0-9]/.test(text)) {
+    throw new Error("The text has no words in it. Paste the essay text and try again.");
+  }
+}
+
+const countText: ToolDef = {
+  name: "count_text",
+  title: "Count words, sentences and pages",
+  description:
+    "Count the words, characters, sentences and paragraphs in a text, and estimate how many pages it fills at a given font, font size and line spacing. Inputs: text, and optional font (times new roman, arial, calibri, georgia, courier new or verdana, default times new roman), font_size in points (default 12) and spacing (single, 1.5 or double, default double). The page count is an estimate from typical words per page, so a word processor may differ by a little. Also returns an estimated reading time at 238 words per minute.",
+  inputSchema: {
+    text: textInput,
+    font: z.string().optional().describe("Font name. Default times new roman."),
+    font_size: z.number().min(6).max(72).optional().describe("Font size in points. Default 12."),
+    spacing: z.enum(["single", "1.5", "double"]).optional().describe("Line spacing. Default double."),
+  },
+  outputSchema: {
+    words: z.number(),
+    characters: z.number(),
+    characters_no_spaces: z.number(),
+    sentences: z.number(),
+    paragraphs: z.number(),
+    estimated_pages: z.number(),
+    font: z.string(),
+    font_size: z.number(),
+    spacing: z.string(),
+    reading_minutes: z.number(),
+  },
+  run: ({ text, font = "times new roman", font_size = 12, spacing = "double" }) => {
+    requireText(text);
+    const w = wordCount(text);
+    const pages = round(pageEstimate(w, font, font_size, spacing), 1);
+    const minutes = round(w / 238, 1);
+    const result = {
+      words: w,
+      characters: text.length,
+      characters_no_spaces: text.replace(/\s/g, "").length,
+      sentences: splitSentences(text).length,
+      paragraphs: splitParagraphs(text).length,
+      estimated_pages: pages,
+      font: font.trim().toLowerCase(),
+      font_size,
+      spacing,
+      reading_minutes: minutes,
+    };
+    return {
+      text: `${w} words, ${result.characters} characters (${result.characters_no_spaces} without spaces), ${result.sentences} sentences and ${result.paragraphs} paragraphs. About ${pages} pages in ${result.font} ${font_size} point with ${spacing} spacing. Reading time is about ${minutes} minutes.`,
+      structured: result,
+    };
+  },
+};
+
+function fleschLabel(score: number): string {
+  if (score >= 90) return "very easy";
+  if (score >= 80) return "easy";
+  if (score >= 70) return "fairly easy";
+  if (score >= 60) return "plain English";
+  if (score >= 50) return "fairly hard";
+  if (score >= 30) return "hard";
+  return "very hard";
+}
+
+const readabilityScores: ToolDef = {
+  name: "readability_scores",
+  title: "Readability scores",
+  description:
+    "Score how hard a text is to read with three standard formulas: Flesch Kincaid grade level (plus the Flesch reading ease score), Gunning Fog index and SMOG index. Each grade is roughly a US school grade, so 12 is the end of high school and 16 is a college degree. Input: text. SMOG is built for samples of 30 sentences or more, so on shorter text the tool still returns a number but marks it as less reliable.",
+  inputSchema: { text: textInput },
+  outputSchema: {
+    words: z.number(),
+    sentences: z.number(),
+    syllables: z.number(),
+    complex_words: z.number(),
+    flesch_kincaid_grade: z.number(),
+    flesch_reading_ease: z.number(),
+    reading_ease_label: z.string(),
+    gunning_fog: z.number(),
+    smog: z.number(),
+    smog_reliable: z.boolean(),
+  },
+  run: ({ text }) => {
+    requireText(text);
+    const c = counts(text);
+    if (c.words === 0 || c.sentences === 0) {
+      throw new Error("The text needs at least one word and one sentence to score.");
+    }
+    const wps = c.words / c.sentences;
+    const spw = c.syllables / c.words;
+    const fk = 0.39 * wps + 11.8 * spw - 15.59;
+    const ease = 206.835 - 1.015 * wps - 84.6 * spw;
+    const fog = 0.4 * (wps + 100 * (c.complexWords / c.words));
+    const smog = 1.043 * Math.sqrt(c.polysyllables * (30 / c.sentences)) + 3.1291;
+    const reliable = c.sentences >= 30;
+    const result = {
+      words: c.words,
+      sentences: c.sentences,
+      syllables: c.syllables,
+      complex_words: c.complexWords,
+      flesch_kincaid_grade: round(fk),
+      flesch_reading_ease: round(ease),
+      reading_ease_label: fleschLabel(ease),
+      gunning_fog: round(fog),
+      smog: round(smog),
+      smog_reliable: reliable,
+    };
+    return {
+      text: `Flesch Kincaid grade ${result.flesch_kincaid_grade} (reading ease ${result.flesch_reading_ease}, ${result.reading_ease_label}). Gunning Fog ${result.gunning_fog}. SMOG ${result.smog}${reliable ? "" : ", less reliable because the text has fewer than 30 sentences"}. Based on ${c.words} words, ${c.sentences} sentences and ${c.complexWords} complex words.`,
+      structured: result,
+    };
+  },
+};
+
+const styleFlags: ToolDef = {
+  name: "style_flags",
+  title: "Style flags",
+  description:
+    "Flag common style problems in an essay: sentences in the passive voice, sentences that start with the same word as a neighbour (or three or more times), filler words and phrases such as very, just, in order to, and sentences that are too long. Inputs: text, and optional max_sentence_words (default 30), the length above which a sentence counts as long. The checks are simple pattern rules, so treat them as prompts to reread, not as errors.",
+  inputSchema: {
+    text: textInput,
+    max_sentence_words: z.number().int().min(5).max(200).optional().describe("Sentence length that counts as long. Default 30."),
+  },
+  outputSchema: {
+    sentences: z.number(),
+    passive_count: z.number(),
+    passive_sentences: z.array(z.object({ phrase: z.string(), sentence: z.string() })),
+    repeated_openers: z.array(z.object({ word: z.string(), count: z.number(), sentences: z.array(z.number()) })),
+    filler: z.array(z.object({ text: z.string(), count: z.number() })),
+    filler_count: z.number(),
+    long_sentences: z.array(z.object({ number: z.number(), words: z.number(), sentence: z.string() })),
+    max_sentence_words: z.number(),
+  },
+  run: ({ text, max_sentence_words = 30 }) => {
+    requireText(text);
+    const sentences = splitSentences(text);
+    const passive = findPassive(sentences);
+    const openers = findRepeatedOpeners(sentences);
+    const filler = findFiller(text);
+    const long = sentences
+      .map((s, i) => ({ number: i + 1, words: wordCount(s), sentence: s }))
+      .filter((s) => s.words > max_sentence_words);
+    const fillerCount = filler.reduce((n, f) => n + f.count, 0);
+    const lines = [
+      `${sentences.length} sentences checked.`,
+      `Passive voice: ${passive.length}${passive.length ? " (" + passive.slice(0, 3).map((p) => `"${p.phrase}"`).join(", ") + (passive.length > 3 ? ", ..." : "") + ")" : ""}.`,
+      `Repeated openers: ${openers.length ? openers.map((o) => `"${o.word}" x${o.count}`).join(", ") : "none"}.`,
+      `Filler: ${fillerCount ? filler.map((f) => `"${f.text}" x${f.count}`).join(", ") : "none"}.`,
+      `Long sentences over ${max_sentence_words} words: ${long.length ? long.map((l) => `#${l.number} (${l.words} words)`).join(", ") : "none"}.`,
+    ];
+    return {
+      text: lines.join("\n"),
+      structured: {
+        sentences: sentences.length,
+        passive_count: passive.length,
+        passive_sentences: passive.map((p) => ({ phrase: p.phrase, sentence: p.sentence })),
+        repeated_openers: openers,
+        filler,
+        filler_count: fillerCount,
+        long_sentences: long,
+        max_sentence_words,
+      },
+    };
+  },
+};
+
+const checkWordLimit: ToolDef = {
+  name: "check_word_limit",
+  title: "Check a word limit",
+  description:
+    "Compare an essay against a word limit. Inputs: text, limit (the maximum word count), optional minimum (a lower bound), optional tolerance_percent (how far over the limit is still acceptable, default 0, a common rule is 10), optional exclude_references (cut everything from a heading line such as References, Works Cited or Bibliography to the end) and optional exclude_quotes (leave out block quotes that start with > and text inside double quotes). Returns the counted words, how many are left or over, and what was excluded.",
+  inputSchema: {
+    text: textInput,
+    limit: z.number().int().positive().describe("Maximum number of words."),
+    minimum: z.number().int().min(0).optional().describe("Minimum number of words."),
+    tolerance_percent: z.number().min(0).max(100).optional().describe("Percent over the limit that is still fine. Default 0."),
+    exclude_references: z.boolean().optional().describe("Leave out the references section. Default false."),
+    exclude_quotes: z.boolean().optional().describe("Leave out quoted passages. Default false."),
+  },
+  outputSchema: {
+    status: z.enum(["under_minimum", "within_limit", "within_tolerance", "over_limit"]),
+    total_words: z.number(),
+    counted_words: z.number(),
+    excluded_reference_words: z.number(),
+    excluded_quote_words: z.number(),
+    limit: z.number(),
+    minimum: z.number().nullable(),
+    allowed_maximum: z.number(),
+    words_remaining: z.number(),
+    words_over: z.number(),
+  },
+  run: ({ text, limit, minimum, tolerance_percent = 0, exclude_references = false, exclude_quotes = false }) => {
+    requireText(text);
+    if (minimum !== undefined && minimum > limit) {
+      throw new Error(`minimum (${minimum}) is above limit (${limit}). Check the two numbers.`);
+    }
+    const total = wordCount(text);
+    let body = text;
+    let refWords = 0;
+    let quoteWords = 0;
+    if (exclude_references) {
+      const r = stripReferences(body);
+      body = r.body;
+      refWords = wordCount(r.removed);
+    }
+    if (exclude_quotes) {
+      const q = stripQuotes(body);
+      body = q.body;
+      quoteWords = wordCount(q.removed);
+    }
+    const counted = wordCount(body);
+    const allowed = Math.floor(limit * (1 + tolerance_percent / 100));
+    let status: "under_minimum" | "within_limit" | "within_tolerance" | "over_limit";
+    if (minimum !== undefined && counted < minimum) status = "under_minimum";
+    else if (counted <= limit) status = "within_limit";
+    else if (counted <= allowed) status = "within_tolerance";
+    else status = "over_limit";
+    const remaining = Math.max(0, limit - counted);
+    const over = Math.max(0, counted - limit);
+    const summary: Record<typeof status, string> = {
+      under_minimum: `Under the minimum. ${counted} words counted, ${minimum! - counted} short of ${minimum}.`,
+      within_limit: `Within the limit. ${counted} of ${limit} words, ${remaining} left.`,
+      within_tolerance: `Over the limit of ${limit} by ${over} words, but inside the ${tolerance_percent} percent tolerance (up to ${allowed}).`,
+      over_limit: `Over the limit. ${counted} words counted against ${limit}, so ${over} to cut${tolerance_percent ? ` (tolerance allows up to ${allowed})` : ""}.`,
+    };
+    const excluded = [
+      exclude_references ? `${refWords} reference words left out` : "",
+      exclude_quotes ? `${quoteWords} quote words left out` : "",
+    ].filter(Boolean);
+    return {
+      text: summary[status] + (excluded.length ? ` (${total} words in total, ${excluded.join(", ")}.)` : ""),
+      structured: {
+        status,
+        total_words: total,
+        counted_words: counted,
+        excluded_reference_words: refWords,
+        excluded_quote_words: quoteWords,
+        limit,
+        minimum: minimum ?? null,
+        allowed_maximum: allowed,
+        words_remaining: remaining,
+        words_over: over,
+      },
+    };
+  },
+};
+
+export const tools: ToolDef[] = [countText, readabilityScores, styleFlags, checkWordLimit];

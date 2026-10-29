@@ -1,0 +1,67 @@
+{
+  "name": "essay-stats-mcp",
+  "version": "0.1.0",
+  "description": "Offline writing metrics for essays. Word and page counts, readability scores, passive voice, repeated openers, filler words, long sentences and word limit checks, so students can check their work against assignment requirements. No account, no network.",
+  "type": "module",
+  "main": "build/src/index.js",
+  "bin": {
+    "essay-stats-mcp": "build/src/index.js"
+  },
+  "files": [
+    "build/src",
+    "README.md",
+    "llms.txt",
+    "CHANGELOG.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/src/index.js', 0o755)\"",
+    "test": "vitest run",
+    "start": "node build/src/index.js",
+    "prepublishOnly": "npm run build && npm test"
+  },
+  "keywords": [
+    "essay stats mcp",
+    "essay word counter",
+    "word count",
+    "page count",
+    "readability",
+    "flesch kincaid",
+    "gunning fog",
+    "smog index",
+    "passive voice",
+    "writing metrics",
+    "word limit",
+    "reading time",
+    "style checker",
+    "student writing",
+    "mcp",
+    "mcp server",
+    "model context protocol",
+    "claude desktop",
+    "cursor"
+  ],
+  "author": "AnonymousOnyx22",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AnonymousOnyx22/essay-stats-mcp.git"
+  },
+  "homepage": "https://github.com/AnonymousOnyx22/essay-stats-mcp#readme",
+  "bugs": {
+    "url": "https://github.com/AnonymousOnyx22/essay-stats-mcp/issues"
+  },
+  "mcpName": "io.github.AnonymousOnyx22/essay-stats-mcp",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "typescript": "^7.0.2",
+    "vitest": "^5.0.5"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "$schema": "https://glama.ai/mcp/schemas/server.json",
+  "name": "essay-stats-mcp",
+  "description": "Offline writing metrics for essays. Word and page counts, readability, passive voice, repeated openers, filler words and word limit checks. No account.",
+  "type": "stdio",
+  "license": "MIT",
+  "repository": {
+    "url": "https://github.com/AnonymousOnyx22/essay-stats-mcp",
+    "source": "github"
+  },
+  "homepage": "https://github.com/AnonymousOnyx22/essay-stats-mcp",
+  "version": "0.1.0",
+  "maintainers": [
+    "AnonymousOnyx22"
+  ]
+}
