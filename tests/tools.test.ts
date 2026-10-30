@@ -31,6 +31,10 @@ describe("server", () => {
     ]);
     const res: any = await client.callTool({ name: "count_text", arguments: { text: "One two three." } });
     expect(res.structuredContent.words).toBe(3);
+    const empty: any = await client.callTool({ name: "count_text", arguments: { text: "" } });
+    expect(empty.isError).toBe(true);
+    expect(empty.content[0].text).toContain("text is empty");
+    expect(empty.content[0].text).not.toContain("check_word_limit");
   });
 });
 

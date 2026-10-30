@@ -15,7 +15,7 @@ import {
   wordFrequency,
 } from "./text.js";
 
-const EMPTY_TEXT_HINT = `text is empty. Paste the essay text to analyse. Worked example: check_word_limit with { "text": "Your essay content here.", "limit": 1500, "exclude_references": true }`;
+const EMPTY_TEXT_HINT = `text is empty. Paste the essay text to analyse. Worked example: { "text": "Your essay content here." }`;
 
 const textInput = z.string().min(1, EMPTY_TEXT_HINT);
 
