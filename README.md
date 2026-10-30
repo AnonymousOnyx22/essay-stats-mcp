@@ -1,6 +1,6 @@
 # Essay Stats MCP
 
-Offline writing metrics for essays. It covers word and page counts, readability, passive voice, repeated words and reading time, so you can check your work against assignment requirements before you hand it in.
+An essay word counter and writing checker that runs offline. Use it to check an assignment word limit before you hand work in. It counts words and pages, scores readability, and flags passive voice, filler words, long sentences and repeated sentence openers. It also gives the reading time.
 
 It runs on your computer. There is no account, no API key and no network call. Your essay text never leaves your machine.
 
