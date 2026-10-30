@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.1.1
 
 - Tool descriptions now include example prompts, so clients can show what to ask each tool.
 - New tool word_frequency lists the most used words, with counts and share of the text, to spot overused terms.

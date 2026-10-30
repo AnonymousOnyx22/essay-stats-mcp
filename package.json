@@ -1,6 +1,6 @@
 {
   "name": "essay-stats-mcp",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Essay Stats MCP counts words and pages offline for essays, scores readability, flags passive voice and filler words, and checks word limits against assignment requirements. No account, no network.",
   "type": "module",
   "main": "build/src/index.js",
