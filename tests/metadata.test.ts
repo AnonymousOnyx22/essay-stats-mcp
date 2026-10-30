@@ -45,7 +45,8 @@ describe("docs", () => {
     });
 
     it(`${file} has no leftovers from the old project`, () => {
-      expect(text).not.toMatch(/gpa|chatgpt|grade calculator/i);
+      // the table of sibling servers names the other servers on purpose, so it is left out of this check
+      expect(text.replace(/\n## More free student MCP servers[\s\S]*?(?=\n## |$)/, "")).not.toMatch(/gpa|chatgpt|grade calculator/i);
     });
 
     it(`${file} uses plain punctuation`, () => {
