@@ -64,6 +64,17 @@ Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_r
 - "My limit is 1500 words, not counting the works cited or quotes. Am I over?"
 - "Which sentences are over 25 words long?"
 
+## Works well with
+
+If your school uses Brightspace, you can run [brightspace-mcp-server](https://www.npmjs.com/package/brightspace-mcp-server) next to Essay Stats MCP in the same app. That server is a separate project with its own setup, so follow its README to install and sign in. Essay Stats MCP does not talk to it and does not need it.
+
+With both added to your MCP config, you can ask your assistant to look up the word limit in your assignment details, then pass that number to `check_word_limit` along with your draft. For example:
+
+- "Find the word limit for my history essay in Brightspace, then check this draft against it, leaving out the works cited."
+- "Look up my assignment instructions, then tell me if this draft is under the limit and how many pages it is."
+
+The assignment details come from the other server. The counting and checking happen here, on your machine, and Essay Stats MCP makes no network calls.
+
 ## Privacy
 
 Everything is calculated locally by a small Node.js program talking to your app over standard input and output. It makes no network requests, stores nothing and needs no keys or passwords. The text you paste is used for the one call and then dropped.
