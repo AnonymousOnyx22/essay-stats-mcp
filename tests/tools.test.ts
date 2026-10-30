@@ -115,6 +115,11 @@ describe("readability_scores", () => {
     expect(sc("readability_scores", { text: long }).smog_reliable).toBe(true);
   });
 
+  it("marks SMOG as unreliable on short text", () => {
+    const r = sc("readability_scores", { text: "One sentence here." });
+    expect(r.smog_reliable).toBe(false);
+  });
+
   it("errors on text with no words", () => {
     expect(call("readability_scores", { text: "123 ... ???" }).isError).toBeFalsy();
     const noWords = call("readability_scores", { text: "---" });
@@ -238,6 +243,20 @@ describe("check_word_limit", () => {
     expect(r.isError).toBe(true);
     expect(r.content[0].text).toContain("exclude_references");
     expect(r.content[0].text).toContain("limit");
+  });
+
+  it("does not exclude references when there is no heading", () => {
+    const text = `${body} Some extra words with no references section.`;
+    const r = sc("check_word_limit", { text, limit: 1000, exclude_references: true });
+    expect(r.excluded_reference_words).toBe(0);
+    expect(r.counted_words).toBe(r.total_words);
+  });
+
+  it("leaves out quotes with nested quotes", () => {
+    const text = `${body} She said "He told me 'hello there' today" and left.`;
+    const cut = sc("check_word_limit", { text, limit: 1000, exclude_quotes: true });
+    expect(cut.excluded_quote_words).toBeGreaterThan(0);
+    expect(cut.counted_words).toBeLessThan(cut.total_words);
   });
 });
 
