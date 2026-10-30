@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- style_flags now returns a sentence_list with the number of each passive or long sentence, and says that sentence numbers follow the order of the text.
+
 ## 0.1.0
 
 - First version.

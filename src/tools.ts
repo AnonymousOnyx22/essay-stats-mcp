@@ -133,7 +133,7 @@ const styleFlags: ToolDef = {
   name: "style_flags",
   title: "Style flags",
   description:
-    "Flag common style problems in an essay: sentences in the passive voice, sentences that start with the same word as a neighbour (or three or more times), filler words and phrases such as very, just, in order to, and sentences that are too long. Inputs: text, and optional max_sentence_words (default 30), the length above which a sentence counts as long. The checks are simple pattern rules, so treat them as prompts to reread, not as errors.",
+    "Flag common style problems in an essay: sentences in the passive voice, sentences that start with the same word as a neighbour (or three or more times), filler words and phrases such as very, just, in order to, and sentences that are too long. Inputs: text, and optional max_sentence_words (default 30), the length above which a sentence counts as long. Sentence numbers start at 1 and follow the order of the text, so number 3 is the third sentence. The sentence_list field gives each passive or long sentence with its number, and the text summary ends with a line listing those numbers. The checks are simple pattern rules, so treat them as prompts to reread, not as errors.",
   inputSchema: {
     text: textInput,
     max_sentence_words: z.number().int().min(5).max(200).optional().describe("Sentence length that counts as long. Default 30."),
@@ -147,6 +147,7 @@ const styleFlags: ToolDef = {
     filler_count: z.number(),
     long_sentences: z.array(z.object({ number: z.number(), words: z.number(), sentence: z.string() })),
     max_sentence_words: z.number(),
+    sentence_list: z.array(z.object({ number: z.number(), passive: z.boolean(), long: z.boolean(), sentence: z.string() })),
   },
   run: ({ text, max_sentence_words = 30 }) => {
     requireText(text);
@@ -158,12 +159,22 @@ const styleFlags: ToolDef = {
       .map((s, i) => ({ number: i + 1, words: wordCount(s), sentence: s }))
       .filter((s) => s.words > max_sentence_words);
     const fillerCount = filler.reduce((n, f) => n + f.count, 0);
+    let next = 0;
+    const longNumbers = new Set(long.map((l) => l.number));
+    const sentenceList = sentences
+      .map((s, i) => {
+        const isPassive = next < passive.length && passive[next].sentence === s;
+        if (isPassive) next++;
+        return { number: i + 1, passive: isPassive, long: longNumbers.has(i + 1), sentence: s };
+      })
+      .filter((s) => s.passive || s.long);
     const lines = [
       `${sentences.length} sentences checked.`,
       `Passive voice: ${passive.length}${passive.length ? " (" + passive.slice(0, 3).map((p) => `"${p.phrase}"`).join(", ") + (passive.length > 3 ? ", ..." : "") + ")" : ""}.`,
       `Repeated openers: ${openers.length ? openers.map((o) => `"${o.word}" x${o.count}`).join(", ") : "none"}.`,
       `Filler: ${fillerCount ? filler.map((f) => `"${f.text}" x${f.count}`).join(", ") : "none"}.`,
       `Long sentences over ${max_sentence_words} words: ${long.length ? long.map((l) => `#${l.number} (${l.words} words)`).join(", ") : "none"}.`,
+      `Passive or long sentence numbers, in text order: ${sentenceList.length ? sentenceList.map((s) => s.number).join(", ") : "none"}.`,
     ];
     return {
       text: lines.join("\n"),
@@ -176,6 +187,7 @@ const styleFlags: ToolDef = {
         filler_count: fillerCount,
         long_sentences: long,
         max_sentence_words,
+        sentence_list: sentenceList,
       },
     };
   },

@@ -157,6 +157,17 @@ describe("style_flags", () => {
     expect(tight.long_sentences[0].words).toBe(13);
   });
 
+  it("lists flagged sentences with numbers in text order", () => {
+    const text = "Dogs bark loudly. The ball was thrown by Sam. Cats purr softly.";
+    const out = call("style_flags", { text });
+    const list = out.structuredContent!.sentence_list as any[];
+    expect(list).toHaveLength(1);
+    expect(list[0].number).toBe(2);
+    expect(list[0].passive).toBe(true);
+    expect(list[0].long).toBe(false);
+    expect(out.content[0].text).toContain("in text order: 2.");
+  });
+
   it("says none when the text is clean", () => {
     const clean = call("style_flags", { text: "Dogs bark loudly. Cats purr softly. Birds sing at dawn." });
     expect(clean.content[0].text).toContain("Passive voice: 0");

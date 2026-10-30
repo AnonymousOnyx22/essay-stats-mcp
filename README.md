@@ -52,6 +52,8 @@ Input: `text`. The grades are roughly US school grades, so 12 is the end of high
 
 Inputs: `text` and optional `max_sentence_words` (default 30). The checks are simple pattern rules. Use them as a prompt to reread a sentence, not as proof of a mistake.
 
+Sentence numbers start at 1 and follow the order of the text. The `sentence_list` field gives each passive or long sentence with its number, and the text summary ends with a line listing those numbers, so a reply can point you to the right sentence.
+
 ### check_word_limit
 
 Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_references` and `exclude_quotes`. References are cut from a heading line such as References, Works Cited or Bibliography to the end. Quotes are lines starting with `>` and text inside double quotes.
