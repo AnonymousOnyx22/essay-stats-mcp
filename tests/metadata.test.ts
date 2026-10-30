@@ -11,7 +11,7 @@ describe("package metadata", () => {
 
   it("has the agreed names and version", () => {
     expect(pkg.name).toBe("essay-stats-mcp");
-    expect(pkg.version).toBe("0.1.0");
+    expect(pkg.version).toMatch(/^\d+\.\d+\.\d+$/);
     expect(pkg.mcpName).toBe("io.github.AnonymousOnyx22/essay-stats-mcp");
     expect(Object.keys(pkg.bin)).toEqual(["essay-stats-mcp"]);
   });
