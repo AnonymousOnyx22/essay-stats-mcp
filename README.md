@@ -14,7 +14,7 @@ Then ask things like:
 - "How many pages is this essay in Arial 11 point with 1.5 spacing?"
 - "Find the passive voice and filler words in my draft."
 
-Essay Stats MCP is an essay word counter and writing checker that runs offline. It counts words and pages, scores readability, and flags passive voice, filler words, long sentences and repeated sentence openers. It also gives the reading time.
+Essay Stats MCP is an essay word counter and writing checker that runs offline. It counts words and pages, gives a readability score, and flags passive voice, filler words, long sentences and repeated sentence openers. It also gives the reading time.
 
 There is no account, no API key and no network call. Your essay text never leaves your machine.
 
