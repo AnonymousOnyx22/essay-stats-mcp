@@ -16,7 +16,7 @@ The report was written by the team. Mistakes were made, and the data was lost. I
 "This quoted passage has exactly seven words." We just moved on.`;
 
 describe("server", () => {
-  it("lists the four tools over MCP and answers a call", async () => {
+  it("lists the five tools over MCP and answers a call", async () => {
     const server = createServer();
     const client = new Client({ name: "test", version: "0.0.0" });
     const [a, b] = InMemoryTransport.createLinkedPair();
@@ -27,6 +27,7 @@ describe("server", () => {
       "count_text",
       "readability_scores",
       "style_flags",
+      "word_frequency",
     ]);
     const res: any = await client.callTool({ name: "count_text", arguments: { text: "One two three." } });
     expect(res.structuredContent.words).toBe(3);
@@ -225,5 +226,32 @@ describe("check_word_limit", () => {
     const r = call("check_word_limit", { text: body, limit: 50, minimum: 80 });
     expect(r.isError).toBe(true);
     expect(r.content[0].text).toContain("minimum");
+  });
+});
+
+describe("word_frequency", () => {
+  const text = "Writing is hard. Writing takes time, and good writing takes practice. Practice helps the writer.";
+
+  it("lists repeated words, most used first", () => {
+    const r = sc("word_frequency", { text });
+    expect(r.words[0]).toEqual({ word: "writing", count: 3, percent: 20 });
+    expect(r.words.map((w: any) => w.word)).toEqual(["writing", "practice", "takes"]);
+    expect(r.total_words).toBe(15);
+  });
+
+  it("skips common words unless asked", () => {
+    expect(sc("word_frequency", { text }).words.map((w: any) => w.word)).not.toContain("the");
+    const r = sc("word_frequency", { text, include_common_words: true, min_count: 1, top: 100 });
+    expect(r.words.map((w: any) => w.word)).toContain("is");
+  });
+
+  it("respects top and min_count", () => {
+    expect(sc("word_frequency", { text, top: 1 }).words).toHaveLength(1);
+    expect(sc("word_frequency", { text, min_count: 3 }).words).toHaveLength(1);
+  });
+
+  it("says so when nothing repeats and rejects empty text", () => {
+    expect(call("word_frequency", { text: "Every word differs here." }).content[0].text).toContain("No word");
+    expect(call("word_frequency", { text: "..." }).isError).toBe(true);
   });
 });

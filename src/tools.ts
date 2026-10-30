@@ -12,6 +12,7 @@ import {
   stripQuotes,
   stripReferences,
   wordCount,
+  wordFrequency,
 } from "./text.js";
 
 const textInput = z.string().min(1, "text is empty. Paste the essay text to analyse.");
@@ -274,4 +275,36 @@ const checkWordLimit: ToolDef = {
   },
 };
 
-export const tools: ToolDef[] = [countText, readabilityScores, styleFlags, checkWordLimit];
+const wordFrequencyTool: ToolDef = {
+  name: "word_frequency",
+  title: "Word frequency",
+  description:
+    "Find the words an essay uses most, to spot overused or repeated terms. Inputs: text, and optional top (how many words to list, default 10), min_count (fewest uses for a word to be listed, default 2) and include_common_words (also count small words such as the, and, of and to, default false). Case is ignored, and words under 3 letters are skipped unless include_common_words is true. Each word comes with its count and its share of all the words in the text.",
+  inputSchema: {
+    text: textInput,
+    top: z.number().int().min(1).max(100).optional().describe("How many words to list. Default 10."),
+    min_count: z.number().int().min(1).optional().describe("Fewest uses for a word to be listed. Default 2."),
+    include_common_words: z.boolean().optional().describe("Also count small common words. Default false."),
+  },
+  outputSchema: {
+    total_words: z.number(),
+    unique_words: z.number(),
+    words: z.array(z.object({ word: z.string(), count: z.number(), percent: z.number() })),
+    top: z.number(),
+    min_count: z.number(),
+  },
+  run: ({ text, top = 10, min_count = 2, include_common_words = false }) => {
+    requireText(text);
+    const f = wordFrequency(text, include_common_words);
+    const list = f.hits.filter((h) => h.count >= min_count).slice(0, top);
+    const summary = list.length
+      ? `Most used words: ${list.map((h) => `"${h.word}" x${h.count} (${h.percent} percent)`).join(", ")}.`
+      : `No word is used ${min_count} or more times.`;
+    return {
+      text: `${f.total} words, ${f.unique} different. ${summary}`,
+      structured: { total_words: f.total, unique_words: f.unique, words: list, top, min_count },
+    };
+  },
+};
+
+export const tools: ToolDef[] = [countText, readabilityScores, styleFlags, checkWordLimit, wordFrequencyTool];

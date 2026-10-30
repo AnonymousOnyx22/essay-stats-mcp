@@ -50,8 +50,9 @@ Where the config lives:
 | `readability_scores` | Flesch Kincaid grade, Flesch reading ease, Gunning Fog and SMOG. |
 | `style_flags` | Passive voice, repeated sentence openers, filler words and long sentences. |
 | `check_word_limit` | Compares the text with a word limit. Optional minimum, tolerance, and leaving out references and quotes. |
+| `word_frequency` | The words used most often, with counts and share of the text, to spot overused terms. |
 
-All four tools only read the text you give them. Each one returns a short written answer and the same numbers as structured fields.
+All five tools only read the text you give them. Each one returns a short written answer and the same numbers as structured fields.
 
 ### count_text
 
@@ -67,6 +68,10 @@ Inputs: `text` and optional `max_sentence_words` (default 30). The checks are si
 
 Sentence numbers start at 1 and follow the order of the text. The `sentence_list` field gives each passive or long sentence with its number, and the text summary ends with a line listing those numbers, so a reply can point you to the right sentence.
 
+### word_frequency
+
+Inputs: `text`, and optional `top` (how many words to list, default 10), `min_count` (fewest uses for a word to be listed, default 2) and `include_common_words` (also count small words such as the, and, of and to, default false). Case is ignored, and words under 3 letters are skipped unless `include_common_words` is true.
+
 ### check_word_limit
 
 Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_references` and `exclude_quotes`. References are cut from a heading line such as References, Works Cited or Bibliography to the end. Quotes are lines starting with `>` and text inside double quotes.
@@ -78,6 +83,7 @@ Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_r
 - "Find the passive voice and filler words in my draft."
 - "My limit is 1500 words, not counting the works cited or quotes. Am I over?"
 - "Which sentences are over 25 words long?"
+- "Which words do I overuse in this essay?"
 
 ## Works well with
 

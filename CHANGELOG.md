@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- New tool word_frequency lists the words an essay uses most, with counts and share of the text, to spot overused terms.
 - style_flags now returns a sentence_list with the number of each passive or long sentence, and says that sentence numbers follow the order of the text.
 
 ## 0.1.0

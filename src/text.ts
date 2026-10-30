@@ -229,3 +229,30 @@ export function stripQuotes(text: string): { body: string; removed: string } {
   });
   return { body, removed: removed.join("\n") };
 }
+
+const COMMON_WORDS = new Set(
+  "a about after all also an and any are as at be because been but by can could did do does for from had has have he her his how i if in into is it its may more most my no not of on one or our out she so some than that the their them then there these they this to up was we were what when which who will with would you your".split(" "),
+);
+
+export interface FrequencyHit {
+  word: string;
+  count: number;
+  percent: number;
+}
+
+/** Counts how often each word is used, ignoring case. Common small words are skipped unless asked for. */
+export function wordFrequency(
+  text: string,
+  includeCommon = false,
+): { total: number; unique: number; hits: FrequencyHit[] } {
+  const all = words(text).map((w) => w.toLowerCase().replace(/['’]s$/, ""));
+  const counted = new Map<string, number>();
+  for (const w of all) {
+    if (!includeCommon && (COMMON_WORDS.has(w) || w.length < 3)) continue;
+    counted.set(w, (counted.get(w) ?? 0) + 1);
+  }
+  const hits = [...counted.entries()]
+    .map(([word, count]) => ({ word, count, percent: round((count / all.length) * 100, 2) }))
+    .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word));
+  return { total: all.length, unique: new Set(all).size, hits };
+}
