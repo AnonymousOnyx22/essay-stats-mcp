@@ -1,12 +1,26 @@
 # Essay Stats MCP
 
-An essay word counter and writing checker that runs offline. Use it to check an assignment word limit before you hand work in. It counts words and pages, scores readability, and flags passive voice, filler words, long sentences and repeated sentence openers. It also gives the reading time.
+You are about to hand in an essay and you are not sure if it is over the word limit, or how many pages it is. A chat assistant tends to guess at word counts. This server counts them properly, on your computer, so your assistant can give you real numbers.
 
-It runs on your computer. There is no account, no API key and no network call. Your essay text never leaves your machine.
+Install it in Claude Code with one line:
+
+```
+claude mcp add essay-stats -- npx -y essay-stats-mcp
+```
+
+Then ask things like:
+
+- "My limit is 1500 words, not counting the works cited or quotes. Am I over?"
+- "How many pages is this essay in Arial 11 point with 1.5 spacing?"
+- "Find the passive voice and filler words in my draft."
+
+An essay word counter and writing checker that runs offline. It counts words and pages, scores readability, and flags passive voice, filler words, long sentences and repeated sentence openers. It also gives the reading time.
+
+There is no account, no API key and no network call. Your essay text never leaves your machine.
 
 ## Quick start
 
-Add this to the MCP config of your app:
+For Claude Code, use the one line above. For other apps, add this to the MCP config:
 
 ```json
 {
@@ -24,7 +38,6 @@ It needs Node.js 20 or newer.
 Where the config lives:
 
 - Claude Desktop: Settings, Developer, Edit Config (`claude_desktop_config.json`).
-- Claude Code: run `claude mcp add essay-stats -- npx -y essay-stats-mcp`.
 - Cursor: Settings, MCP, or `.cursor/mcp.json` in your project.
 - VS Code: `.vscode/mcp.json`. VS Code uses a `servers` key instead of `mcpServers`.
 - Windsurf: `~/.codeium/windsurf/mcp_config.json`.
