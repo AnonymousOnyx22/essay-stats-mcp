@@ -66,7 +66,7 @@ Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_r
 
 ## Works well with
 
-If your school uses Brightspace, you can run [brightspace-mcp-server](https://www.npmjs.com/package/brightspace-mcp-server) next to Essay Stats MCP in the same app. That server is a separate project with its own setup, so follow its README to install and sign in. Essay Stats MCP does not talk to it and does not need it.
+If your school uses Brightspace, you can run [brightspace-d2l-mcp](https://www.npmjs.com/package/brightspace-d2l-mcp) next to Essay Stats MCP in the same app. That server has its own setup, so follow its README to install and sign in. Essay Stats MCP does not talk to it and does not need it.
 
 With both added to your MCP config, you can ask your assistant to look up the word limit in your assignment details, then pass that number to `check_word_limit` along with your draft. For example:
 
