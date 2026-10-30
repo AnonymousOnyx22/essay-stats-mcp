@@ -1,7 +1,7 @@
 {
   "name": "essay-stats-mcp",
   "version": "0.1.0",
-  "description": "Offline writing metrics for essays. Word and page counts, readability scores, passive voice, repeated openers, filler words, long sentences and word limit checks, so students can check their work against assignment requirements. No account, no network.",
+  "description": "Essay Stats MCP counts words and pages offline for essays, scores readability, flags passive voice and filler words, and checks word limits against assignment requirements. No account, no network.",
   "type": "module",
   "main": "build/src/index.js",
   "bin": {
