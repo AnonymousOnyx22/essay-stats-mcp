@@ -35,7 +35,7 @@ const countText: ToolDef = {
   name: "count_text",
   title: "Count words, sentences and pages",
   description:
-    "Count the words, characters, sentences and paragraphs in a text, and estimate how many pages it fills at a given font, font size and line spacing. Inputs: text, and optional font (times new roman, arial, calibri, georgia, courier new or verdana, default times new roman), font_size in points (default 12) and spacing (single, 1.5 or double, default double). The page count is an estimate from typical words per page, so a word processor may differ by a little. Also returns an estimated reading time at 238 words per minute.",
+    "Count the words, characters, sentences and paragraphs in a text, and estimate how many pages it fills at a given font, font size and line spacing. Inputs: text, and optional font (times new roman, arial, calibri, georgia, courier new or verdana, default times new roman), font_size in points (default 12) and spacing (single, 1.5 or double, default double).     The page count is an estimate from typical words per page, so a word processor may differ by a little. Also returns an estimated reading time at 238 words per minute. Example: \"Count the words in this essay and estimate the pages in Times New Roman 12 double spaced.",
   inputSchema: {
     text: textInput,
     font: z.string().optional().describe("Font name. Default times new roman."),
@@ -92,7 +92,7 @@ const readabilityScores: ToolDef = {
   name: "readability_scores",
   title: "Readability scores",
   description:
-    "Score how hard a text is to read with three standard formulas: Flesch Kincaid grade level (plus the Flesch reading ease score), Gunning Fog index and SMOG index. Each grade is roughly a US school grade, so 12 is the end of high school and 16 is a college degree. Input: text. SMOG is built for samples of 30 sentences or more, so on shorter text the tool still returns a number but marks it as less reliable.",
+    "Score how hard a text is to read with three standard formulas: Flesch Kincaid grade level (plus the Flesch reading ease score), Gunning Fog index and SMOG index. Each grade is roughly a US school grade, so 12 is the end of high school and 16 is a college degree. Input: text.     SMOG is built for samples of 30 sentences or more, so on shorter text the tool still returns a number but marks it as less reliable. Example: \"Give me the Flesch Kincaid, Gunning Fog and SMOG scores for this paper.",
   inputSchema: { text: textInput },
   outputSchema: {
     words: z.number(),
@@ -142,7 +142,7 @@ const styleFlags: ToolDef = {
   name: "style_flags",
   title: "Style flags",
   description:
-    "Flag common style problems in an essay: sentences in the passive voice, sentences that start with the same word as a neighbour (or three or more times), filler words and phrases such as very, just, in order to, and sentences that are too long. Inputs: text, and optional max_sentence_words (default 30), the length above which a sentence counts as long. Sentence numbers start at 1 and follow the order of the text, so number 3 is the third sentence. The sentence_list field gives each passive or long sentence with its number, and the text summary ends with a line listing those numbers. The checks are simple pattern rules, so treat them as prompts to reread, not as errors.",
+    "Flag common style problems in an essay: sentences in the passive voice, sentences that start with the same word as a neighbour (or three or more times), filler words and phrases such as very, just, in order to, and sentences that are too long. Inputs: text, and optional max_sentence_words (default 30), the length above which a sentence counts as long. Sentence numbers start at 1 and follow the order of the text, so number 3 is the third sentence. The sentence_list field gives each passive or long sentence with its number, and the text summary ends with a line listing those numbers.     The checks are simple pattern rules, so treat them as prompts to reread, not as errors. Example: \"Flag passive voice and filler words in my draft.",
   inputSchema: {
     text: textInput,
     max_sentence_words: z.number().int().min(5).max(200).optional().describe("Sentence length that counts as long. Default 30."),
@@ -206,7 +206,7 @@ const checkWordLimit: ToolDef = {
   name: "check_word_limit",
   title: "Check a word limit",
   description:
-    "Compare an essay against a word limit. Inputs: text, limit (the maximum word count), optional minimum (a lower bound), optional tolerance_percent (how far over the limit is still acceptable, default 0, a common rule is 10), optional exclude_references (cut everything from a heading line such as References, Works Cited or Bibliography to the end) and optional exclude_quotes (leave out block quotes that start with > and text inside double quotes). Returns the counted words, how many are left or over, and what was excluded.",
+    "Compare an essay against a word limit. Inputs: text, limit (the maximum word count), optional minimum (a lower bound), optional tolerance_percent (how far over the limit is still acceptable, default 0, a common rule is 10), optional exclude_references (cut everything from a heading line such as References, Works Cited or Bibliography to the end) and     optional exclude_quotes (leave out block quotes that start with > and text inside double quotes). Returns the counted words, how many are left or over, and what was excluded. Example: \"Is this under 2000 words if I leave out the works cited and quotes?.",
   inputSchema: {
     text: textInput,
     limit: z.number().int().positive().describe("Maximum number of words."),
@@ -287,7 +287,7 @@ const wordFrequencyTool: ToolDef = {
   name: "word_frequency",
   title: "Word frequency",
   description:
-    "Find the words an essay uses most, to spot overused or repeated terms. Inputs: text, and optional top (how many words to list, default 10), min_count (fewest uses for a word to be listed, default 2) and include_common_words (also count small words such as the, and, of and to, default false). Case is ignored, and words under 3 letters are skipped unless include_common_words is true. Each word comes with its count and its share of all the words in the text.",
+    "Find the words an essay uses most, to spot overused or repeated terms. Inputs: text, and optional top (how many words to list, default 10), min_count (fewest uses for a word to be listed, default 2) and include_common_words (also count small words such as the, and, of and to, default false).     Case is ignored, and words under 3 letters are skipped unless include_common_words is true. Each word comes with its count and its share of all the words in the text. Example: \"Which words do I overuse in this essay?.",
   inputSchema: {
     text: textInput,
     top: z.number().int().min(1).max(100).optional().describe("How many words to list. Default 10."),
@@ -316,3 +316,4 @@ const wordFrequencyTool: ToolDef = {
 };
 
 export const tools: ToolDef[] = [countText, readabilityScores, styleFlags, checkWordLimit, wordFrequencyTool];
+

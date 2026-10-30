@@ -292,3 +292,11 @@ describe("word_frequency", () => {
     expect(empty.content[0].text).toContain("Worked example");
   });
 });
+
+describe("tool descriptions", () => {
+  for (const t of tools) {
+    it(`${t.name} description includes an example prompt`, () => {
+      expect(t.description).toMatch(/Example: "/);
+    });
+  }
+});
