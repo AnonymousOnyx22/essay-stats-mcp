@@ -74,7 +74,9 @@ describe("count_text", () => {
     const bad = call("count_text", { text: "hello there", font: "Comic Sans" });
     expect(bad.isError).toBe(true);
     expect(bad.content[0].text).toContain("Unknown font");
-    expect(call("count_text", { text: "... !!!" }).isError).toBe(true);
+    const empty = call("count_text", { text: "..." });
+    expect(empty.isError).toBe(true);
+    expect(empty.content[0].text).toContain("Worked example");
   });
 });
 
@@ -115,7 +117,9 @@ describe("readability_scores", () => {
 
   it("errors on text with no words", () => {
     expect(call("readability_scores", { text: "123 ... ???" }).isError).toBeFalsy();
-    expect(call("readability_scores", { text: "---" }).isError).toBe(true);
+    const noWords = call("readability_scores", { text: "---" });
+    expect(noWords.isError).toBe(true);
+    expect(noWords.content[0].text).toContain("Worked example");
   });
 });
 
@@ -226,6 +230,14 @@ describe("check_word_limit", () => {
     const r = call("check_word_limit", { text: body, limit: 50, minimum: 80 });
     expect(r.isError).toBe(true);
     expect(r.content[0].text).toContain("minimum");
+    expect(r.content[0].text).toContain("Worked example");
+  });
+
+  it("shows a worked example with the correct params when the text has no words", () => {
+    const r = call("check_word_limit", { text: "..." });
+    expect(r.isError).toBe(true);
+    expect(r.content[0].text).toContain("exclude_references");
+    expect(r.content[0].text).toContain("limit");
   });
 });
 
@@ -252,6 +264,8 @@ describe("word_frequency", () => {
 
   it("says so when nothing repeats and rejects empty text", () => {
     expect(call("word_frequency", { text: "Every word differs here." }).content[0].text).toContain("No word");
-    expect(call("word_frequency", { text: "..." }).isError).toBe(true);
+    const empty = call("word_frequency", { text: "..." });
+    expect(empty.isError).toBe(true);
+    expect(empty.content[0].text).toContain("Worked example");
   });
 });

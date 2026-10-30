@@ -2,8 +2,9 @@
 
 ## Unreleased
 
-- New tool word_frequency lists the words an essay uses most, with counts and share of the text, to spot overused terms.
+- New tool word_frequency lists the most used words, with counts and share of the text, to spot overused terms.
 - style_flags now returns a sentence_list with the number of each passive or long sentence, and says that sentence numbers follow the order of the text.
+- Error messages for empty or wordless text and for a minimum above the limit now include a worked example call so a client can fix its input.
 
 ## 0.1.0
 

@@ -15,11 +15,19 @@ import {
   wordFrequency,
 } from "./text.js";
 
-const textInput = z.string().min(1, "text is empty. Paste the essay text to analyse.");
+const EMPTY_TEXT_HINT = `text is empty. Paste the essay text to analyse. Worked example: check_word_limit with { "text": "Your essay content here.", "limit": 1500, "exclude_references": true }`;
 
-function requireText(text: string): void {
+const textInput = z.string().min(1, EMPTY_TEXT_HINT);
+
+function requireText(text: string, toolName: string): void {
   if (!/[A-Za-z0-9]/.test(text)) {
-    throw new Error("The text has no words in it. Paste the essay text and try again.");
+    const example =
+      toolName === "check_word_limit"
+        ? `{ "text": "Your essay content here.", "limit": 1500, "exclude_references": true }`
+        : `{ "text": "Your essay content here." }`;
+    throw new Error(
+      `The text has no words in it. Paste the essay text and try again. Worked example for ${toolName}: ${example}`,
+    );
   }
 }
 
@@ -47,7 +55,7 @@ const countText: ToolDef = {
     reading_minutes: z.number(),
   },
   run: ({ text, font = "times new roman", font_size = 12, spacing = "double" }) => {
-    requireText(text);
+    requireText(text, "count_text");
     const w = wordCount(text);
     const pages = round(pageEstimate(w, font, font_size, spacing), 1);
     const minutes = round(w / 238, 1);
@@ -99,7 +107,7 @@ const readabilityScores: ToolDef = {
     smog_reliable: z.boolean(),
   },
   run: ({ text }) => {
-    requireText(text);
+    requireText(text, "readability_scores");
     const c = counts(text);
     if (c.words === 0 || c.sentences === 0) {
       throw new Error("The text needs at least one word and one sentence to score.");
@@ -151,7 +159,7 @@ const styleFlags: ToolDef = {
     sentence_list: z.array(z.object({ number: z.number(), passive: z.boolean(), long: z.boolean(), sentence: z.string() })),
   },
   run: ({ text, max_sentence_words = 30 }) => {
-    requireText(text);
+    requireText(text, "style_flags");
     const sentences = splitSentences(text);
     const passive = findPassive(sentences);
     const openers = findRepeatedOpeners(sentences);
@@ -220,9 +228,9 @@ const checkWordLimit: ToolDef = {
     words_over: z.number(),
   },
   run: ({ text, limit, minimum, tolerance_percent = 0, exclude_references = false, exclude_quotes = false }) => {
-    requireText(text);
+    requireText(text, "check_word_limit");
     if (minimum !== undefined && minimum > limit) {
-      throw new Error(`minimum (${minimum}) is above limit (${limit}). Check the two numbers.`);
+      throw new Error(`minimum (${minimum}) is above limit (${limit}). Set minimum to at most the limit. Worked example: { "text": "Your essay content here.", "limit": 1500, "minimum": 1200 }`);
     }
     const total = wordCount(text);
     let body = text;
@@ -294,7 +302,7 @@ const wordFrequencyTool: ToolDef = {
     min_count: z.number(),
   },
   run: ({ text, top = 10, min_count = 2, include_common_words = false }) => {
-    requireText(text);
+    requireText(text, "word_frequency");
     const f = wordFrequency(text, include_common_words);
     const list = f.hits.filter((h) => h.count >= min_count).slice(0, top);
     const summary = list.length
