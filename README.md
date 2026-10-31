@@ -85,6 +85,22 @@ Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_r
 - "Which sentences are over 25 words long?"
 - "Which words do I overuse in this essay?"
 
+## How it compares
+
+Essay Stats MCP does one job: it measures a piece of writing you give it. Other tools in this area do different jobs, so the table below is about what each kind of tool is for, not about which is better.
+
+| | Essay Stats MCP | Brightspace MCP servers, such as brightspace-mcp-server | Online grammar and writing checkers | Asking a chat assistant to count |
+| --- | --- | --- | --- | --- |
+| Main job | Word count, page estimate, readability and style flags for an essay | Reading course data from Brightspace, such as courses and assignments | Fixing grammar, spelling and tone | General answers |
+| Works on your own draft text | Yes | No, it works on course data | Yes | Yes |
+| Exact word and page numbers | Yes, counted by code | Not its purpose | Usually a word count only | Often a guess |
+| Word limit check that skips references and quotes | Yes, with `check_word_limit` | No | Rarely | Unreliable |
+| Needs an account or API key | No | Depends on the server, check its README | Often an account | Depends on the app |
+| Sends your text over the network | No | Depends on the server | Usually yes | Yes, to the assistant |
+| Runs as a local MCP server | Yes | Yes | Not usually | Not applicable |
+
+Essay Stats MCP does not fix your writing or reach into Brightspace. If you want Brightspace data next to it, see the next section for our own server, brightspace-d2l-mcp.
+
 ## Works well with
 
 If your school uses Brightspace, you can run [brightspace-d2l-mcp](https://www.npmjs.com/package/brightspace-d2l-mcp) next to Essay Stats MCP in the same app. That server has its own setup, so follow its README to install and sign in. Essay Stats MCP does not talk to it and does not need it.
