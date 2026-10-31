@@ -1,6 +1,8 @@
 # Essay Stats MCP
 
-> An MCP server with offline writing metrics for essays. It counts words and pages, scores readability, flags style problems and checks word limits. No account, no API key, no network.
+> An MCP server with offline writing metrics for essays. It counts words and pages, scores readability, flags style problems and checks word limits. No account, no API key, no network. Your essay text never leaves your machine.
+
+Claude Code users can install it with one line: `claude mcp add essay-stats -- npx -y essay-stats-mcp`
 
 Package: essay-stats-mcp (npm). Registry name: io.github.AnonymousOnyx22/essay-stats-mcp. Runs over stdio. Needs Node.js 20 or newer.
 
@@ -38,6 +40,18 @@ All tools are read only and work on text passed in the call.
 - "Flag passive voice and filler words in my draft."
 - "Which words do I overuse in this essay?"
 - "Is this under 2000 words if I leave out the works cited and quotes?"
+- "My limit is 1500 words, not counting the works cited or quotes. Am I over?"
+- "How many pages is this essay in Arial 11 point with 1.5 spacing?"
+- "What reading level is this essay?"
+- "Which sentences are over 25 words long?"
+
+## Tool examples
+
+- count_text: "Count the words in this essay and tell me how many pages it is in Arial 11 point with 1.5 spacing." Uses font arial, font_size 11 and spacing 1.5.
+- readability_scores: "Give me the Flesch Kincaid, Gunning Fog and SMOG scores for this paper." Grades are roughly US school grades.
+- style_flags: "Which sentences are over 25 words long?" Uses max_sentence_words 25. Sentence numbers start at 1.
+- word_frequency: "Show my 15 most used words." Uses top 15.
+- check_word_limit: "My limit is 1500 words, not counting the works cited or quotes." Uses limit 1500 with exclude_references and exclude_quotes set to true.
 
 ## Privacy
 
