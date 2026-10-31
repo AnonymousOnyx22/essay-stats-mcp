@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.2
+
+- Add worked examples to word_frequency and style_flags errors
+- Add competitor comparison table to README
+- Update the table of sibling MCP servers in the README
+
 ## 0.1.1
 
 - Tool descriptions now include example prompts, so clients can show what to ask each tool.
