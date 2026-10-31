@@ -294,6 +294,49 @@ describe("word_frequency", () => {
     expect(sc("word_frequency", { text, min_count: 3 }).words).toHaveLength(1);
   });
 
+  it("lists single use words in alphabetical order when min_count is 1", () => {
+    const r = sc("word_frequency", { text: "Zebra apple mango apple", min_count: 1 });
+    expect(r.words.map((w: any) => w.word)).toEqual(["apple", "mango", "zebra"]);
+    expect(r.min_count).toBe(1);
+  });
+
+  it("returns an empty list and echoes the settings when min_count is too high", () => {
+    const r = sc("word_frequency", { text, min_count: 50, top: 5 });
+    expect(r.words).toEqual([]);
+    expect(r.min_count).toBe(50);
+    expect(r.top).toBe(5);
+    expect(call("word_frequency", { text, min_count: 50 }).content[0].text).toContain("50 or more");
+  });
+
+  it("uses the defaults of top 10 and min_count 2", () => {
+    const many = Array.from({ length: 15 }, (_, i) => `word${String.fromCharCode(97 + i)} word${String.fromCharCode(97 + i)}`).join(" ");
+    const r = sc("word_frequency", { text: many });
+    expect(r.words).toHaveLength(10);
+    expect(r.top).toBe(10);
+    expect(r.min_count).toBe(2);
+  });
+
+  it("ignores case and folds possessives into the base word", () => {
+    const r = sc("word_frequency", { text: "Essay essay ESSAY. The essay's end." });
+    expect(r.words[0].word).toBe("essay");
+    expect(r.words[0].count).toBe(4);
+  });
+
+  it("skips words under 3 letters by default but still counts them in the total", () => {
+    const t = "ox ox ox cat cat";
+    const r = sc("word_frequency", { text: t });
+    expect(r.words.map((w: any) => w.word)).toEqual(["cat"]);
+    expect(r.total_words).toBe(5);
+    const all = sc("word_frequency", { text: t, include_common_words: true });
+    expect(all.words.map((w: any) => w.word)).toEqual(["ox", "cat"]);
+  });
+
+  it("works out percent from all words, including skipped common ones", () => {
+    const r = sc("word_frequency", { text: "the the the cat cat" });
+    expect(r.words).toEqual([{ word: "cat", count: 2, percent: 40 }]);
+    expect(r.unique_words).toBe(2);
+  });
+
   it("says so when nothing repeats and rejects empty text", () => {
     expect(call("word_frequency", { text: "Every word differs here." }).content[0].text).toContain("No word");
     const empty = call("word_frequency", { text: "..." });
