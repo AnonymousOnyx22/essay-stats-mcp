@@ -21,10 +21,12 @@ const textInput = z.string().min(1, EMPTY_TEXT_HINT);
 
 function requireText(text: string, toolName: string): void {
   if (!/[A-Za-z0-9]/.test(text)) {
-    const example =
-      toolName === "check_word_limit"
-        ? `{ "text": "Your essay content here.", "limit": 1500, "exclude_references": true }`
-        : `{ "text": "Your essay content here." }`;
+    const examples: Record<string, string> = {
+      check_word_limit: `{ "text": "Your essay content here.", "limit": 1500, "exclude_references": true }`,
+      word_frequency: `{ "text": "Your essay content here.", "top": 10, "min_count": 2 }`,
+      style_flags: `{ "text": "Your essay content here.", "max_sentence_words": 30 }`,
+    };
+    const example = examples[toolName] ?? `{ "text": "Your essay content here." }`;
     throw new Error(
       `The text has no words in it. Paste the essay text and try again. Worked example for ${toolName}: ${example}`,
     );

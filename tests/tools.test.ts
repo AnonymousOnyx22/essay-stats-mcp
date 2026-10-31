@@ -249,6 +249,15 @@ describe("check_word_limit", () => {
     expect(r.content[0].text).toContain("limit");
   });
 
+  it("shows tool specific worked examples for word_frequency and style_flags", () => {
+    const wf = call("word_frequency", { text: "..." });
+    expect(wf.isError).toBe(true);
+    expect(wf.content[0].text).toContain("min_count");
+    const sf = call("style_flags", { text: "..." });
+    expect(sf.isError).toBe(true);
+    expect(sf.content[0].text).toContain("max_sentence_words");
+  });
+
   it("does not exclude references when there is no heading", () => {
     const text = `${body} Some extra words with no references section.`;
     const r = sc("check_word_limit", { text, limit: 1000, exclude_references: true });
