@@ -1,4 +1,4 @@
-# Essay Stats MCP
+# Essay Stats MCP: Essay Word Count and Writing Checker
 
 You are about to hand in an essay and you are not sure if it is over the word limit, or how many pages it is. A chat assistant tends to guess at word counts. This server counts them properly, on your computer, so your assistant can give you real numbers.
 
