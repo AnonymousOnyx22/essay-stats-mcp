@@ -20,7 +20,11 @@ There is no account, no API key and no network call. Your essay text never leave
 
 ## Quick start
 
-For Claude Code, use the one line above. For other apps, add this to the MCP config:
+Claude Code users can use the one line above. For other apps, copy the snippet for your client. It needs Node.js 20 or newer.
+
+### Claude Desktop
+
+Open Settings, Developer, Edit Config, and add this to `claude_desktop_config.json`. Then restart Claude Desktop.
 
 ```json
 {
@@ -33,14 +37,40 @@ For Claude Code, use the one line above. For other apps, add this to the MCP con
 }
 ```
 
-It needs Node.js 20 or newer.
+### Cursor
 
-Where the config lives:
+Add this to `.cursor/mcp.json` in your project, or to `~/.cursor/mcp.json` for all projects.
 
-- Claude Desktop: Settings, Developer, Edit Config (`claude_desktop_config.json`).
-- Cursor: Settings, MCP, or `.cursor/mcp.json` in your project.
-- VS Code: `.vscode/mcp.json`. VS Code uses a `servers` key instead of `mcpServers`.
-- Windsurf: `~/.codeium/windsurf/mcp_config.json`.
+```json
+{
+  "mcpServers": {
+    "essay-stats": {
+      "command": "npx",
+      "args": ["-y", "essay-stats-mcp"]
+    }
+  }
+}
+```
+
+### VS Code
+
+Add this to `.vscode/mcp.json` in your workspace. VS Code uses a `servers` key instead of `mcpServers`.
+
+```json
+{
+  "servers": {
+    "essay-stats": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["-y", "essay-stats-mcp"]
+    }
+  }
+}
+```
+
+### Windsurf
+
+Use the same snippet as Claude Desktop in `~/.codeium/windsurf/mcp_config.json`.
 
 ## Tools
 
