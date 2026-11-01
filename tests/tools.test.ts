@@ -370,6 +370,34 @@ describe("sentence_variety", () => {
   });
 });
 
+describe("error messages", () => {
+  it("includes a worked example when the text has no words, for every tool", () => {
+    for (const t of tools) {
+      const r = call(t.name, { text: "..." });
+      expect(r.isError, t.name).toBe(true);
+      expect(r.content[0].text, t.name).toContain(`Worked example for ${t.name}: {`);
+    }
+  });
+
+  it("includes a worked example when the text is an empty string", async () => {
+    const server = createServer();
+    const client = new Client({ name: "test", version: "0.0.0" });
+    const [a, b] = InMemoryTransport.createLinkedPair();
+    await Promise.all([server.connect(a), client.connect(b)]);
+    for (const t of tools) {
+      const r: any = await client.callTool({ name: t.name, arguments: { text: "" } });
+      expect(r.isError, t.name).toBe(true);
+      expect(r.content[0].text, t.name).toContain('Worked example: { "text"');
+    }
+  });
+
+  it("includes a worked example when check_word_limit gets a minimum above the limit", () => {
+    const r = call("check_word_limit", { text: "Some words here.", limit: 10, minimum: 20 });
+    expect(r.isError).toBe(true);
+    expect(r.content[0].text).toContain('Worked example: { "text"');
+  });
+});
+
 describe("tool descriptions", () => {
   for (const t of tools) {
     it(`${t.name} description includes an example prompt`, () => {
