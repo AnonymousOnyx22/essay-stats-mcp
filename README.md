@@ -79,10 +79,11 @@ Use the same snippet as Claude Desktop in `~/.codeium/windsurf/mcp_config.json`.
 | `count_text` | Words, characters, sentences, paragraphs, reading time and an estimated page count for a font, size and line spacing. |
 | `readability_scores` | Flesch Kincaid grade, Flesch reading ease, Gunning Fog and SMOG. |
 | `style_flags` | Passive voice, repeated sentence openers, filler words and long sentences. |
+| `sentence_variety` | How much sentence lengths change, with short, medium and long counts and runs of similar length. |
 | `check_word_limit` | Compares the text with a word limit. Optional minimum, tolerance, and leaving out references and quotes. |
 | `word_frequency` | The words used most often, with counts and share of the text, to spot overused terms. |
 
-All five tools only read the text you give them. Each one returns a short written answer and the same numbers as structured fields.
+All six tools only read the text you give them. Each one returns a short written answer and the same numbers as structured fields.
 
 ### count_text
 
@@ -97,6 +98,10 @@ Input: `text`. The grades are roughly US school grades, so 12 is the end of high
 Inputs: `text` and optional `max_sentence_words` (default 30). The checks are simple pattern rules. Use them as a prompt to reread a sentence, not as proof of a mistake.
 
 Sentence numbers start at 1 and follow the order of the text. The `sentence_list` field gives each passive or long sentence with its number, and the text summary ends with a line listing those numbers, so a reply can point you to the right sentence.
+
+### sentence_variety
+
+Input: `text`. Returns the shortest, longest and average sentence length in words, the standard deviation, and how many sentences are short (under 10 words), medium (10 to 24) or long (25 or more). It also lists runs of 3 or more sentences in a row whose lengths are within 3 words of the first one in the run, with their sentence numbers. Sentence numbers start at 1 and follow the order of the text.
 
 ### word_frequency
 
@@ -113,6 +118,7 @@ Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_r
 - "Find the passive voice and filler words in my draft."
 - "My limit is 1500 words, not counting the works cited or quotes. Am I over?"
 - "Which sentences are over 25 words long?"
+- "Do my sentences all sound the same length?"
 - "Which words do I overuse in this essay?"
 
 ## How it compares

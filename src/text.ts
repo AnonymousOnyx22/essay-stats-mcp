@@ -256,3 +256,7 @@ export function wordFrequency(
     .sort((a, b) => b.count - a.count || a.word.localeCompare(b.word));
   return { total: all.length, unique: new Set(all).size, hits };
 }
+
+export function sentenceLengths(sentences: string[]): number[] {
+  return sentences.map((s) => wordCount(s));
+}

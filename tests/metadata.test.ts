@@ -36,7 +36,7 @@ describe("package metadata", () => {
 });
 
 describe("docs", () => {
-  const names = ["count_text", "readability_scores", "style_flags", "check_word_limit", "word_frequency"];
+  const names = ["count_text", "readability_scores", "style_flags", "sentence_variety", "check_word_limit", "word_frequency"];
   const docs = { "README.md": read("README.md"), "llms.txt": read("llms.txt") };
 
   for (const [file, text] of Object.entries(docs)) {

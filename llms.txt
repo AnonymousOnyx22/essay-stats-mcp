@@ -30,6 +30,7 @@ All tools are read only and work on text passed in the call.
 - count_text: words, characters, sentences, paragraphs, reading time and estimated pages. Inputs: text, optional font (times new roman, arial, calibri, georgia, courier new, verdana), font_size (default 12) and spacing (single, 1.5, double; default double).
 - readability_scores: Flesch Kincaid grade, Flesch reading ease, Gunning Fog and SMOG. Input: text. SMOG is marked less reliable under 30 sentences.
 - style_flags: passive voice, repeated sentence openers, filler words and long sentences. Inputs: text, optional max_sentence_words (default 30).
+- sentence_variety: how much sentence lengths change: shortest, longest, average, standard deviation, counts of short (under 10 words), medium and long (25 or more) sentences, and runs of 3 or more sentences of similar length. Input: text.
 - word_frequency: the most used words with counts and share of the text, to spot overused terms. Inputs: text, optional top (default 10), min_count (default 2) and include_common_words (default false).
 - check_word_limit: compares text with a limit. Inputs: text, limit, optional minimum, tolerance_percent, exclude_references and exclude_quotes. Returns a status of under_minimum, within_limit, within_tolerance or over_limit.
 
@@ -50,6 +51,7 @@ All tools are read only and work on text passed in the call.
 - count_text: "Count the words in this essay and tell me how many pages it is in Arial 11 point with 1.5 spacing." Uses font arial, font_size 11 and spacing 1.5.
 - readability_scores: "Give me the Flesch Kincaid, Gunning Fog and SMOG scores for this paper." Grades are roughly US school grades.
 - style_flags: "Which sentences are over 25 words long?" Uses max_sentence_words 25. Sentence numbers start at 1.
+- sentence_variety: "Do my sentences all sound the same length?" Sentence numbers in similar_runs start at 1.
 - word_frequency: "Show my 15 most used words." Uses top 15.
 - check_word_limit: "My limit is 1500 words, not counting the works cited or quotes." Uses limit 1500 with exclude_references and exclude_quotes set to true.
 

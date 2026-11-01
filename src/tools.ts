@@ -7,6 +7,7 @@ import {
   findRepeatedOpeners,
   pageEstimate,
   round,
+  sentenceLengths,
   splitParagraphs,
   splitSentences,
   stripQuotes,
@@ -25,6 +26,7 @@ function requireText(text: string, toolName: string): void {
       check_word_limit: `{ "text": "Your essay content here.", "limit": 1500, "exclude_references": true }`,
       word_frequency: `{ "text": "Your essay content here.", "top": 10, "min_count": 2 }`,
       style_flags: `{ "text": "Your essay content here.", "max_sentence_words": 30 }`,
+      sentence_variety: `{ "text": "Your essay content here." }`,
     };
     const example = examples[toolName] ?? `{ "text": "Your essay content here." }`;
     throw new Error(
@@ -317,5 +319,68 @@ const wordFrequencyTool: ToolDef = {
   },
 };
 
-export const tools: ToolDef[] = [countText, readabilityScores, styleFlags, checkWordLimit, wordFrequencyTool];
+const sentenceVariety: ToolDef = {
+  name: "sentence_variety",
+  title: "Sentence variety",
+  description:
+    "Show how much the sentence lengths in an essay change, since a good rhythm mixes short, medium and long sentences. Input: text. Returns the shortest, longest and average sentence length in words, the standard deviation, how many sentences are short (under 10 words), medium (10 to 24) and long (25 or more), and any runs of 3 or more sentences in a row whose lengths are within 3 words of the first one in the run, with their sentence numbers. Sentence numbers start at 1 and follow the order of the text. This is a simple measure of rhythm, so treat it as a prompt to reread. Example: \"Do my sentences all sound the same length?\"",
+  inputSchema: { text: textInput },
+  outputSchema: {
+    sentences: z.number(),
+    shortest_words: z.number(),
+    longest_words: z.number(),
+    average_words: z.number(),
+    std_dev_words: z.number(),
+    short_count: z.number(),
+    medium_count: z.number(),
+    long_count: z.number(),
+    similar_runs: z.array(z.object({ first: z.number(), last: z.number(), words: z.number() })),
+    lengths: z.array(z.number()),
+  },
+  run: ({ text }) => {
+    requireText(text, "sentence_variety");
+    const lengths = sentenceLengths(splitSentences(text));
+    if (lengths.length === 0) {
+      throw new Error("The text needs at least one sentence to measure.");
+    }
+    const n = lengths.length;
+    const avg = lengths.reduce((a, b) => a + b, 0) / n;
+    const sd = Math.sqrt(lengths.reduce((a, b) => a + (b - avg) ** 2, 0) / n);
+    const shortCount = lengths.filter((l) => l < 10).length;
+    const longCount = lengths.filter((l) => l >= 25).length;
+    const runs: { first: number; last: number; words: number }[] = [];
+    let i = 0;
+    while (i < n) {
+      let j = i;
+      while (j + 1 < n && Math.abs(lengths[j + 1] - lengths[i]) <= 3) j++;
+      if (j - i + 1 >= 3) {
+        runs.push({ first: i + 1, last: j + 1, words: lengths[i] });
+        i = j + 1;
+      } else {
+        i++;
+      }
+    }
+    const result = {
+      sentences: n,
+      shortest_words: Math.min(...lengths),
+      longest_words: Math.max(...lengths),
+      average_words: round(avg, 1),
+      std_dev_words: round(sd, 1),
+      short_count: shortCount,
+      medium_count: n - shortCount - longCount,
+      long_count: longCount,
+      similar_runs: runs,
+      lengths,
+    };
+    const runText = runs.length
+      ? runs.map((r) => `sentences ${r.first} to ${r.last} (about ${r.words} words each)`).join(", ")
+      : "none";
+    return {
+      text: `${n} sentences, from ${result.shortest_words} to ${result.longest_words} words, averaging ${result.average_words} with a standard deviation of ${result.std_dev_words}. ${shortCount} short, ${result.medium_count} medium and ${longCount} long. Runs of similar length: ${runText}.`,
+      structured: result,
+    };
+  },
+};
+
+export const tools: ToolDef[] = [countText, readabilityScores, styleFlags, sentenceVariety, checkWordLimit, wordFrequencyTool];
 

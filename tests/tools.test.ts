@@ -16,7 +16,7 @@ The report was written by the team. Mistakes were made, and the data was lost. I
 "This quoted passage has exactly seven words." We just moved on.`;
 
 describe("server", () => {
-  it("lists the five tools over MCP and answers a call", async () => {
+  it("lists the six tools over MCP and answers a call", async () => {
     const server = createServer();
     const client = new Client({ name: "test", version: "0.0.0" });
     const [a, b] = InMemoryTransport.createLinkedPair();
@@ -26,6 +26,7 @@ describe("server", () => {
       "check_word_limit",
       "count_text",
       "readability_scores",
+      "sentence_variety",
       "style_flags",
       "word_frequency",
     ]);
@@ -345,6 +346,27 @@ describe("word_frequency", () => {
     const empty = call("word_frequency", { text: "..." });
     expect(empty.isError).toBe(true);
     expect(empty.content[0].text).toContain("Worked example");
+  });
+});
+
+describe("sentence_variety", () => {
+  it("measures lengths and finds runs of similar sentences", () => {
+    const r = sc("sentence_variety", {
+      text: "One two three four. Five six seven eight. Nine ten eleven twelve. This last sentence is a good deal longer than the others were, with many more words in it overall.",
+    });
+    expect(r.sentences).toBe(4);
+    expect(r.shortest_words).toBe(4);
+    expect(r.longest_words).toBe(Math.max(...r.lengths));
+    expect(r.short_count).toBe(3);
+    expect(r.similar_runs).toEqual([{ first: 1, last: 3, words: 4 }]);
+  });
+
+  it("reports no runs for varied text and rejects wordless text", () => {
+    const r = sc("sentence_variety", { text: "Stop. This one runs a little longer than the first. Now a medium line here." });
+    expect(r.similar_runs).toEqual([]);
+    const empty = call("sentence_variety", { text: "..." });
+    expect(empty.isError).toBe(true);
+    expect(empty.content[0].text).toContain("Worked example for sentence_variety");
   });
 });
 
