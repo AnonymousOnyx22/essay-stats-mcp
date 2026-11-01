@@ -111,6 +111,28 @@ Inputs: `text`, and optional `top` (how many words to list, default 10), `min_co
 
 Inputs: `text`, `limit`, and optional `minimum`, `tolerance_percent`, `exclude_references` and `exclude_quotes`. References are cut from a heading line such as References, Works Cited or Bibliography to the end. Quotes are lines starting with `>` and text inside double quotes.
 
+## FAQ: how words and pages are counted
+
+### How does it count a word?
+
+It splits the text on spaces and line breaks and counts each piece that has at least one letter or digit in it. That is the same idea Word and Google Docs use. A hyphenated word such as well known counts as one word when written with a hyphen, and a number like 2024 counts as one word.
+
+### Why can my count differ from Word?
+
+Mostly because of what gets pasted. A dash or symbol standing alone between spaces is counted by Word but not here, since it has no letter or digit. Footnotes, headers, footers and text boxes only count if you paste them in. If the two numbers differ by a few words, check those first.
+
+### How is the page number worked out?
+
+`count_text` divides the word count by a fixed words per page figure for the font you pick, then adjusts for font size and line spacing. It is an estimate, not a layout. It does not know your margins, headings, title page, tables or images, so Word can show a different page count. For a hard page rule, trust the page count in your own document.
+
+### What does check_word_limit leave out?
+
+Nothing unless you ask. With `exclude_references` it drops everything from a heading line such as References, Works Cited or Bibliography to the end. With `exclude_quotes` it drops lines starting with `>` and text inside double quotes. The answer shows the total, the counted words and how many words were left out, so you can match it to what your instructor counts.
+
+### Does the tolerance change the word count?
+
+No. The count stays the same. `tolerance_percent` only widens the allowed limit, so a limit of 1500 with 10 percent tolerance allows up to 1650 words. The answer says when you are over the limit but inside the tolerance.
+
 ## Example prompts
 
 - "Count the words in this essay and tell me how many pages it is in Arial 11 point with 1.5 spacing."
