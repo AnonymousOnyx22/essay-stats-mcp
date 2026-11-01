@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- All five tools are now marked read only, idempotent and closed world, so clients can run them without asking you first.
+
 ## 0.1.2
 
 - Add worked examples to word_frequency and style_flags errors

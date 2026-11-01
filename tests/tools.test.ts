@@ -29,6 +29,9 @@ describe("server", () => {
       "style_flags",
       "word_frequency",
     ]);
+    for (const t of list.tools) {
+      expect(t.annotations).toMatchObject({ readOnlyHint: true, idempotentHint: true, openWorldHint: false });
+    }
     const res: any = await client.callTool({ name: "count_text", arguments: { text: "One two three." } });
     expect(res.structuredContent.words).toBe(3);
     const empty: any = await client.callTool({ name: "count_text", arguments: { text: "" } });
