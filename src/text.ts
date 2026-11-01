@@ -260,3 +260,33 @@ export function wordFrequency(
 export function sentenceLengths(sentences: string[]): number[] {
   return sentences.map((s) => wordCount(s));
 }
+
+export interface SentenceLengthStats {
+  count: number;
+  mean: number;
+  median: number;
+  longest: number;
+  shortest: number;
+  spread: number;
+}
+
+/** Mean, median, longest, shortest and spread (longest minus shortest) of sentence length in words. */
+export function sentenceLengthStats(sentences: string[]): SentenceLengthStats {
+  const lengths = sentenceLengths(sentences);
+  if (lengths.length === 0) {
+    return { count: 0, mean: 0, median: 0, longest: 0, shortest: 0, spread: 0 };
+  }
+  const sorted = [...lengths].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+  const median = sorted.length % 2 ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+  const longest = sorted[sorted.length - 1];
+  const shortest = sorted[0];
+  return {
+    count: sorted.length,
+    mean: round(sorted.reduce((a, b) => a + b, 0) / sorted.length, 1),
+    median,
+    longest,
+    shortest,
+    spread: longest - shortest,
+  };
+}
