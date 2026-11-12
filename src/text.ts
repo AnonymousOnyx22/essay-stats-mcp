@@ -290,3 +290,59 @@ export function sentenceLengthStats(sentences: string[]): SentenceLengthStats {
     spread: longest - shortest,
   };
 }
+
+const TRANSITION_PHRASES = [
+  "for example", "for instance", "in addition", "in contrast", "in conclusion", "in summary",
+  "on the other hand", "as a result", "in other words", "on the contrary", "as well as",
+  "in fact", "above all", "after all", "even though", "at the same time", "for this reason",
+  "to begin with", "in particular", "of course",
+  "however", "therefore", "moreover", "furthermore", "consequently", "nevertheless", "nonetheless",
+  "meanwhile", "similarly", "likewise", "finally", "additionally", "thus", "hence", "otherwise",
+  "instead", "although", "whereas", "because", "since", "first", "second", "third", "next", "then",
+  "also", "still", "yet",
+].sort((a, b) => b.length - a.length);
+
+export interface TransitionSentence {
+  sentence: number;
+  found: string[];
+}
+
+export interface TransitionStats {
+  sentences: number;
+  withTransitions: number;
+  total: number;
+  perSentence: number;
+  hits: TransitionSentence[];
+  withoutTransitions: number[];
+}
+
+/** Counts transition words and phrases in each sentence and lists the sentence numbers that have none. */
+export function transitionWords(sentences: string[]): TransitionStats {
+  const hits: TransitionSentence[] = [];
+  const without: number[] = [];
+  let total = 0;
+  sentences.forEach((s, i) => {
+    let rest = s.toLowerCase();
+    const found: string[] = [];
+    for (const p of TRANSITION_PHRASES) {
+      const re = new RegExp(`\\b${p.replace(/ /g, "\\s+")}\\b`, "g");
+      const n = (rest.match(re) ?? []).length;
+      for (let k = 0; k < n; k++) found.push(p);
+      if (n > 0) rest = rest.replace(re, " ");
+    }
+    if (found.length > 0) {
+      hits.push({ sentence: i + 1, found });
+      total += found.length;
+    } else {
+      without.push(i + 1);
+    }
+  });
+  return {
+    sentences: sentences.length,
+    withTransitions: hits.length,
+    total,
+    perSentence: sentences.length ? round(total / sentences.length, 2) : 0,
+    hits,
+    withoutTransitions: without,
+  };
+}

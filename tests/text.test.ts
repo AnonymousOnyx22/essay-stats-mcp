@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { sentenceLengthStats, splitSentences } from "../src/text.js";
+import { sentenceLengthStats, splitSentences, transitionWords } from "../src/text.js";
 
 describe("sentenceLengthStats", () => {
   it("returns zeros for no sentences", () => {
@@ -17,5 +17,30 @@ describe("sentenceLengthStats", () => {
     expect(r.median).toBe(3);
     expect(r.mean).toBe(3.3);
     expect(r.spread).toBe(5);
+  });
+});
+
+describe("transitionWords", () => {
+  it("returns zeros for no sentences", () => {
+    expect(transitionWords([])).toEqual({
+      sentences: 0, withTransitions: 0, total: 0, perSentence: 0, hits: [], withoutTransitions: [],
+    });
+  });
+
+  it("counts words and phrases and lists sentences with none", () => {
+    const s = splitSentences(
+      "The study ran for a year. However, results varied. In addition, costs rose; therefore we stopped. We left.",
+    );
+    const r = transitionWords(s);
+    expect(r.sentences).toBe(4);
+    expect(r.withTransitions).toBe(2);
+    expect(r.total).toBe(3);
+    expect(r.perSentence).toBe(0.75);
+    expect(r.hits[1].found).toEqual(["in addition", "therefore"]);
+    expect(r.withoutTransitions).toEqual([1, 4]);
+  });
+
+  it("does not match inside other words", () => {
+    expect(transitionWords(["The thinker stayed."]).total).toBe(0);
   });
 });
